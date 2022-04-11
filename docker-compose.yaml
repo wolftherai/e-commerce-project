@@ -1,0 +1,21 @@
+version: '3.9'
+services:
+  backend:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pguser
+      POSTGRES_DB: e-commerce
+    volumes:
+      - .dbdata1:/var/lib/postgresql
+    ports:
+      - 54322:5432
