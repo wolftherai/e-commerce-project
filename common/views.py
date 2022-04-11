@@ -1,10 +1,12 @@
-
 from django.shortcuts import render
 from rest_framework import exceptions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.models import User
+
+from common.authentication import JWTAuthentication
 from .serializers import UserSerializer
 
 
@@ -34,4 +36,63 @@ class LoginAPIView(APIView):
         if not user.check_password(password):
             raise exceptions.AuthenticationFailed('Incorrect Password!')
 
+        token = JWTAuthentication.generate_jwt(user.id)
+        # return Response(UserSerializer(user).data)
+        response = Response()
+        response.set_cookie(key='jwt', value=token,
+                            httponly=True)  # if we add this flag frontend can't access this cookie
+        response.data = {
+            'message': 'success'
+        }
+        return response
+
+
+class UserAPIView(APIView):  # this would return our authenticated user
+    authentication_classes = [JWTAuthentication]  # try to authenticate user
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
+
+
+class LogoutAPIView(APIView):  # this would logout our authenticated user
+    authentication_classes = [JWTAuthentication]  # try to authenticate user
+    permission_classes = [IsAuthenticated]
+
+    def post(self, _):  # we dont use request here
+        response = Response()
+        response.delete_cookie(key='jwt')  # to logout we need to delete cookie
+
+        response.data = {
+            'message': 'success'
+        }
+        return response
+
+
+class ProfileInfoAPIView(APIView):
+    authentication_classes = [JWTAuthentication]  # try to authenticate user
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk=None):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data,
+                                    partial=True)  # partial lets us update only important fields
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  # save changes
+        return Response(serializer.data)
+
+
+class ProfilePasswordAPIView(APIView):
+    authentication_classes = [JWTAuthentication]  # try to authenticate user
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk=None):
+        user = request.user
+        data = request.data
+
+        if data['password'] != data['password_confirm']:
+            raise exceptions.APIException('Passwords do not match!')
+
+        user.set_password(data['password'])
+        user.save()
         return Response(UserSerializer(user).data)
