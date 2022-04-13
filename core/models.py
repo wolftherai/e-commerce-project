@@ -14,6 +14,7 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email)
         )
         user.set_password(password)
+        user.is_manager = False
         user.is_admin = False
         user.is_staff = False
         user.is_superuser = False
@@ -29,6 +30,7 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email)
         )
         user.set_password(password)
+        user.is_manager = False
         user.is_admin = True
         user.is_superuser = True
         user.is_staff = True
@@ -47,4 +49,30 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'  # username equals to email
     REQUIRED_FIELDS = []
 
-    objects = UserManager()  # now we can create user without username
+    objects = UserManager()  # now can create user without username
+
+
+class Product(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    oem_part_number = models.CharField(max_length=12, db_index=True)
+    brand = models.CharField(max_length=255) #reikes itraukti kategorijas
+    manufacturer = models.CharField(max_length=255) #reikes itraukti kategorijas
+    title = models.CharField(max_length=255)
+    description = models.TextField(max_length=1000, null=True)  # can be nullable
+    image = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    note = models.CharField(max_length=150, blank=True, null=True)
+    diameter = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    height = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    width = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    weight = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    #attributes = models.JsonField(blank=True, null=True) #papildomi atributai
+
+
+class Link(models.Model):
+    code = models.CharField(max_length=255, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # on delete cascade
+    products = models.ManyToManyField(Product)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
