@@ -2,16 +2,13 @@ from django.shortcuts import render
 from rest_framework import generics, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from rest_framework.views import APIView
 
-from core.models import User, Product, Link, Order
-
 from common.serializers import UserSerializer
-
 from common.authentication import JWTAuthentication
-
 from administrator.serializers import ProductSerializer, LinkSerializer, OrderSerializer
+from core.models import User, Product, Link, Order
+from django.core.cache import cache
 
 
 class ManagerAPIView(APIView):
@@ -40,13 +37,28 @@ class ProductGenericAPIView(
         return self.list(request)
 
     def post(self, request):
-        return self.create(request)
+        response = self.create(request)  # create products
+        for key in cache.keys('*'):  # search in all keys (frontend) and delete cache after changes
+            if 'products_frontend' in key:
+                cache.delete(key)
+        cache.delete('products_backend')
+        return response
 
     def put(self, request, pk=None):
-        return self.partial_update(request, pk)  # updates only fields that are sent
+        response = self.partial_update(request, pk)  # updates only fields that are sent
+        for key in cache.keys('*'):  # search in all keys and delete cache after changes
+            if 'products_frontend' in key:
+                cache.delete(key)
+        cache.delete('products_backend')
+        return response
 
     def delete(self, request, pk=None):
-        return self.destroy(request, pk)
+        response = self.destroy(request, pk)  # deletes only fields that are sent
+        for key in cache.keys('*'):  # search in all keys and delete cache after changes
+            if 'products_frontend' in key:
+                cache.delete(key)
+        cache.delete('products_backend')
+        return response
 
 
 class LinkAPIView(APIView):
