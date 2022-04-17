@@ -16,7 +16,7 @@ class RegisterAPIView(APIView):
         if data['password'] != data['password_confirm']:
             raise exceptions.APIException('Passwords do not match!')
 
-        data['is_manager'] = 0  # when add manager app, would change logic
+        data['is_manager'] = 'api/manager' in request.path  # check if exist in request path
         serializer = UserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -36,7 +36,12 @@ class LoginAPIView(APIView):
         if not user.check_password(password):
             raise exceptions.AuthenticationFailed('Incorrect Password!')
 
-        token = JWTAuthentication.generate_jwt(user.id)
+        scope = 'manager' if 'api/manager' in request.path else 'admin'
+
+        if user.is_manager and scope == 'admin':
+             raise exceptions.AuthenticationFailed('Unauthorized')
+
+        token = JWTAuthentication.generate_jwt(user.id, scope)
         # return Response(UserSerializer(user).data)
         response = Response()
         response.set_cookie(key='jwt', value=token,
@@ -52,7 +57,13 @@ class UserAPIView(APIView):  # this would return our authenticated user
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(UserSerializer(request.user).data)
+        user = request.user
+        data = UserSerializer(request.user).data
+
+        if 'api/manager' in request.path:
+            data['revenue'] = user.revenue  # show revenue for this type of user
+
+        return Response(data)
 
 
 class LogoutAPIView(APIView):  # this would logout our authenticated user

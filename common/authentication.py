@@ -9,6 +9,7 @@ from core.models import User
 
 class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
+        is_manager = 'api/manager' in request.path
         token = request.COOKIES.get('jwt')
 
         if not token:
@@ -19,6 +20,9 @@ class JWTAuthentication(BaseAuthentication):
         except jwt.ExpiredSignatureError:
             raise exceptions.AuthenticationFailed('Unauthenticated')
 
+        if (is_manager and payload['scope'] != 'manager') or (not is_manager and payload['scope'] != 'admin'): # later add simple user type
+            raise exceptions.AuthenticationFailed('Invalid Scope!')
+
         user = User.objects.get(pk=payload['user_id'])
 
         if user is None:
@@ -27,9 +31,10 @@ class JWTAuthentication(BaseAuthentication):
         return (user, None)  # for error
 
     @staticmethod #no need to declare a class
-    def generate_jwt(id):
+    def generate_jwt(id, scope):
         payload = {
             'user_id': id,
+            'scope': scope,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
             'iat': datetime.datetime.utcnow()
         }
