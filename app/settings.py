@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'corsheaders',  #pridedam
     'core',
     'administrator',
+    'manager'
   #  'common',
 
 ]
