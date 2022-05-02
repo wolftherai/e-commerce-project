@@ -70,6 +70,7 @@ class LinkAPIView(APIView):
         serializer = LinkSerializer(links, many=True)
         return Response(serializer.data)
 
+
 class OrderAPIView(APIView):
     authentication_classes = [JWTAuthentication]  # try to authenticate user
     permission_classes = [IsAuthenticated]
@@ -78,4 +79,3 @@ class OrderAPIView(APIView):
         orders = Order.objects.filter(complete=True)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
-
