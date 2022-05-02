@@ -1,14 +1,18 @@
-import math
+import math, random, time
+import string
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django_redis import get_redis_connection
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import Product
-from .serializers import ProductSerializer
-from django.core.cache import cache
-import time
+from core.models import Product, Link, Order, User
 
+from common.authentication import JWTAuthentication
+
+from .serializers import ProductSerializer, LinkSerializer
+from django.core.cache import cache
 
 class ProductFrontendAPIView(APIView):
     @method_decorator(cache_page(60 * 60 * 2, key_prefix='products_frontend'))  # caching the whole page
@@ -57,4 +61,86 @@ class ProductBackendAPIView(APIView):
                 'page': page,
                 'last_page': math.ceil(total / per_page)
             }
+        })
+
+
+class LinkAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        serializer = LinkSerializer(data={
+            'user': user.id,  # many to many connection
+            'code': ''.join(random.choices(string.ascii_lowercase + string.digits, k=6)),  # random string with letters and digits
+            'products': request.data['products']
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+# basket type update
+    def put(self, request):
+        # response = self.partial_update(request, pk)  # updates only fields that are sent
+        user = request.user
+        serializer = LinkSerializer(user, data={
+            'user': user.id,  # many to many connection
+            'code': request.data['code'],
+            'products': request.data['products']
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  # save changes
+
+        return Response(serializer.data)
+
+
+class StatsAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        links = Link.objects.filter(user_id=user.id) #get all links for user_id
+
+        return Response([(self.format(link)) for link in links])  # loop through links
+
+    def format(self, link):
+        orders = Order.objects.filter(code=link.code, complete=1)  # get all completed orders with this code and revenue fields
+
+        return {
+            'code': link.code,
+            'count': len(orders),
+            'revenue': sum(o.manager_revenue for o in orders)
+        }
+
+
+class RankingsAPIViewWithoutRedis(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        managers = User.objects.filter(is_manager=True)
+
+        response = list({
+            'name': a.name,
+            'revenue': a.revenue
+        } for a in managers)
+
+        response.sort(key=lambda a: a['revenue'], reverse=True)
+
+        return Response(response)
+
+
+class RankingsAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        con = get_redis_connection("default")
+
+        rankings = con.zrevrangebyscore('rankings', min=0, max=99999, withscores=True)  # sort data descending
+
+        return Response({
+            r[0].decode("utf-8"): r[1] for r in rankings
         })
