@@ -27,6 +27,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# EMAIL
+EMAIL_BACKEND ="django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.mail.yahoo.com"  # "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "wolftherai1@yahoo.com"
+EMAIL_HOST_PASSWORD = "hcrlustfjbnufthl"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Application definition
 

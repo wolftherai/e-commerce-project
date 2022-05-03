@@ -14,6 +14,7 @@ from common.authentication import JWTAuthentication
 from .serializers import ProductSerializer, LinkSerializer
 from django.core.cache import cache
 
+
 class ProductFrontendAPIView(APIView):
     @method_decorator(cache_page(60 * 60 * 2, key_prefix='products_frontend'))  # caching the whole page
     def get(self, _):
