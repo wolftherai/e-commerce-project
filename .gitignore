@@ -58,3 +58,5 @@ core/__pycache__/models.cpython-39.pyc
 .dbdata1/*
 .dbdata/*
 .dbdata_mysql/*
+*.cnf
+*.pem
