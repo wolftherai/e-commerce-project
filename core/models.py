@@ -61,7 +61,6 @@ class User(AbstractUser):
         return sum(o.manager_revenue for o in orders)
 
 
-
 class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
