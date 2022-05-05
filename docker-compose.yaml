@@ -18,7 +18,7 @@ services:
       POSTGRES_PASSWORD: pguser
       POSTGRES_DB: e-commerce
     volumes:
-      - .dbdata1:/var/lib/postgresql
+      - .dbdata:/var/lib/postgresql
     ports:
       - 54322:5432
 
