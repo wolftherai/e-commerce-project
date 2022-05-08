@@ -13,4 +13,4 @@ class Command(BaseCommand):
         for manager in managers:
             con.zadd('rankings', {manager.name:  float(manager.revenue)})  # added sorted sets to Redis
 
-        self.stdout.write(self.style.SUCCESS('managers loaded!'))
+        self.stdout.write(self.style.SUCCESS('rankings loaded!'))
