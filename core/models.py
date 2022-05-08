@@ -105,7 +105,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def name(self):
+    def customer_name(self):
         return self.first_name + ' ' + self.last_name
 
     @property
