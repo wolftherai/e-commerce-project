@@ -39,9 +39,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255, unique=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=255)
     is_manager = models.BooleanField(default=True)
     username = None
@@ -65,9 +65,10 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     oem_part_number = models.CharField(max_length=12, db_index=True)
-    brand = models.CharField(max_length=255)  # reikes itraukti kategorijas
-    manufacturer = models.CharField(max_length=255)  # reikes itraukti kategorijas
-    title = models.CharField(max_length=255)
+    brand = models.CharField(max_length=50)  # reikes itraukti kategorijas
+    manufacturer = models.CharField(max_length=50)  # reikes itraukti kategorijas
+   # manufacturer_new = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, related_name="man")  # SET_NULL
+    title = models.CharField(max_length=100)
     description = models.TextField(max_length=1000, null=True)  # can be nullable
     image = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -79,8 +80,26 @@ class Product(models.Model):
     # attributes = models.JsonField(blank=True, null=True) #papildomi atributai
 
 
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Brand(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Link(models.Model):
-    code = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=100, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # on delete cascade
     products = models.ManyToManyField(Product)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,18 +107,18 @@ class Link(models.Model):
 
 
 class Order(models.Model):
-    transaction_id = models.CharField(max_length=255, null=True)  # stripe payment id (will add later)
+    transaction_id = models.CharField(max_length=255, null=True)  # stripe payment id
     user = models.ForeignKey(User, on_delete=models.SET_NULL,
                              null=True)  # connection with a user (ORDER SHOULDNT BE REMOVED)
-    code = models.CharField(max_length=255)
-    manager_email = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    code = models.CharField(max_length=100)
+    manager_email = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.CharField(max_length=50)
     address = models.CharField(max_length=255, null=True)
-    city = models.CharField(max_length=255, null=True)
-    country = models.CharField(max_length=255, null=True)
-    zip = models.CharField(max_length=255, null=True)
+    city = models.CharField(max_length=50, null=True)
+    country = models.CharField(max_length=50, null=True)
+    zip = models.CharField(max_length=10, null=True)
     complete = models.BooleanField(default=False)  # default order is not complete
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
