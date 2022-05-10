@@ -110,6 +110,7 @@ class StatsAPIView(APIView):
         orders = Order.objects.filter(code=link.code, complete=1)  # get all completed orders with this code and revenue fields
 
         return {
+            'id': link.id,
             'code': link.code,
             'count': len(orders),
             'revenue': sum(o.manager_revenue for o in orders)
@@ -133,7 +134,7 @@ class RankingsAPIViewWithoutRedis(APIView):
         return Response(response)
 
 
-class RankingsAPIView(APIView):
+class RankingsAPIViewWithRedis(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
