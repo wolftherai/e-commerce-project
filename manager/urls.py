@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import ProductFrontendAPIView, ProductBackendAPIView, LinkAPIView, StatsAPIView, RankingsAPIView
+from .views import ProductFrontendAPIView, ProductBackendAPIView, LinkAPIView, StatsAPIView, RankingsAPIViewWithoutRedis
 #from .views import ManagerAPIView, ProductGenericAPIView, LinkAPIView, OrderAPIView
 
 urlpatterns = [
@@ -8,5 +8,5 @@ urlpatterns = [
     path('products/backend', ProductBackendAPIView.as_view()),
     path('links', LinkAPIView.as_view()),
     path('stats', StatsAPIView.as_view()),
-    path('rankings', RankingsAPIView.as_view())
+    path('rankings', RankingsAPIViewWithoutRedis.as_view())
 ]
