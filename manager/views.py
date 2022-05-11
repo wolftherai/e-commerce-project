@@ -37,7 +37,7 @@ class ProductBackendAPIView(APIView):
         if s:
             products = list([
                 p for p in products
-                if (s.lower() in p.title.lower() or (s.lower() in p.description.lower()))
+                if (s.lower() in p.title.lower() or (s.lower() in p.description.lower()) or (s.lower() in p.oem_part_number.lower()))
             ])
 
         total = len(products)
