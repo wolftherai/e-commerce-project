@@ -12,12 +12,13 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         faker = Faker()
 
-        for _ in range(30):
+        for _ in range(50):
             title = choice(["GUMINĖ ATRAMA", "AKUMULIATORIUS", "VARŽTAS", "LAIKIKLIS"])
             oem_part_number = str(randrange(100000000, 12345678912))
-            brand = choice(["RECONDITION", "BOSH", "WABCO", "EBS", "SAMPA"])
-            manufacturer = choice(["MERCEDES", "AUDI", "VOLVO"])
-            price = randrange(10.0, 250.0)
+            brand = randrange(1, 5) #choice(["RECONDITION", "BOSH", "WABCO", "EBS", "SAMPA"])
+            manufacturer = randrange(1, 3)#choice(["MERCEDES", "AUDI", "VOLVO"])
+            category = randrange(1,11)
+            price = randrange(10.0, 20.0)
             diameter = randrange(10.0, 500.0)
             height = randrange(10.0, 500.0)
             width = randrange(100.0, 600.0)
@@ -26,15 +27,16 @@ class Command(BaseCommand):
                 title=title,
                 image=faker.image_url(),
                 oem_part_number=oem_part_number,
-                brand=brand,
-                manufacturer=manufacturer,
+                brand_id=brand,
+                category_id=category,
+                manufacturer_id=manufacturer,
                 price=price,
                 diameter=diameter,
                 height=height,
                 width=width,
                 weight=weight,
-                description=( title +
-                              " su kaina: " + str(price) + ";" +
+                description=(title +
+                            #  " su kaina: " + str(price) + ";" +
                               "\n----MATMENYS----\n*Aukštis: " + str(height) +
                               " \n*Plotis: " + str(width) +
                               " \n*Diametras: " + str(diameter) +
@@ -42,4 +44,3 @@ class Command(BaseCommand):
                             )
             )
         self.stdout.write(self.style.SUCCESS('products loaded!'))
-                

@@ -95,6 +95,20 @@ class LinkAPIView(APIView):
         return Response(serializer.data)
 
 
+class LinkAPIViewNotAuthenticated(APIView):
+
+    def post(self, request):
+       # user = request.user
+        serializer = LinkSerializer(data={
+           # 'user': user.id,  # many to many connection
+            'code': ''.join(random.choices(string.ascii_lowercase + string.digits, k=6)),  # random string with letters and digits
+            'products': request.data['products']
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
 class StatsAPIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]

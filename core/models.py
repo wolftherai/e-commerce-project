@@ -61,25 +61,6 @@ class User(AbstractUser):
         return sum(o.manager_revenue for o in orders)
 
 
-class Product(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    oem_part_number = models.CharField(max_length=12, db_index=True)
-    brand = models.CharField(max_length=50)  # reikes itraukti kategorijas
-    manufacturer = models.CharField(max_length=50)  # reikes itraukti kategorijas
-   # manufacturer_new = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, related_name="man")  # SET_NULL
-    title = models.CharField(max_length=100)
-    description = models.TextField(max_length=1000, null=True)  # can be nullable
-    image = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    note = models.CharField(max_length=150, blank=True, null=True)
-    diameter = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
-    height = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
-    width = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
-    weight = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
-    # attributes = models.JsonField(blank=True, null=True) #papildomi atributai
-
-
 class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -98,9 +79,55 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+class Product(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    oem_part_number = models.CharField(max_length=12, db_index=True)
+
+    # brand = models.CharField(max_length=50)  # reikes itraukti kategorijas
+    # manufacturer = models.CharField(max_length=50)  # reikes itraukti kategorijas
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.SET_NULL, null=True)  # SET_NULL blank=True,
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True)  # SET_NULL
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)  # SET_NULL
+    title = models.CharField(max_length=100)
+    description = models.TextField(max_length=1000, null=True)  # can be nullable
+    image = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    note = models.CharField(max_length=150, blank=True, null=True)
+    diameter = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    height = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    width = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    weight = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+    # attributes = models.JsonField(blank=True, null=True) #papildomi atributai
+    @property
+    def manufacturer_name(self):
+        if self.manufacturer:
+            return Manufacturer.objects.filter(pk=self.manufacturer.id).first().name
+        else:
+            return ""
+
+    @property
+    def brand_name(self):
+        if self.brand:
+            return Brand.objects.filter(pk=self.brand.id).first().name
+        else:
+            return ""
+
+    @property
+    def category_name(self):
+        if self.category:
+            return Category.objects.filter(pk=self.category.id).first().name
+        else:
+            return ""
+
+ #   @property
+ #   def category_name(self):
+   #     return Category.objects.filter(pk=self.category_new.id).first().name
+
+
 class Link(models.Model):
     code = models.CharField(max_length=100, unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # on delete cascade
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)  # on delete CASCADE
     products = models.ManyToManyField(Product)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
