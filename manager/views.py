@@ -40,6 +40,27 @@ class ProductBackendAPIView(APIView):
                 if (s.lower() in p.title.lower() or (s.lower() in p.description.lower()) or (s.lower() in p.oem_part_number.lower()))
             ])
 
+        category = request.query_params.get('category', None)  # products filtering by category
+        if category:
+            products = list([
+                p for p in products
+                if (category.lower() in p.category_name.lower())
+            ])
+
+        brand = request.query_params.get('brand', None)  # products filtering by brand
+        if brand:
+            products = list([
+                p for p in products
+                if (brand.lower() in p.brand_name.lower())
+            ])
+
+        manufacturer = request.query_params.get('manufacturer', None)  # products filtering by brand
+        if manufacturer:
+            products = list([
+                p for p in products
+                if (manufacturer.lower() in p.manufacturer_name.lower())
+            ])
+
         total = len(products)
 
         sort = request.query_params.get('sort', None)
