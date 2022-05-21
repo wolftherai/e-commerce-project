@@ -137,6 +137,8 @@ class Order(models.Model):
     transaction_id = models.CharField(max_length=255, null=True)  # stripe payment id
     user = models.ForeignKey(User, on_delete=models.SET_NULL,
                              null=True)  # connection with a user (ORDER SHOULDNT BE REMOVED)
+    link = models.ForeignKey(Link, on_delete=models.SET_NULL,
+                             null=True)
     code = models.CharField(max_length=100)
     manager_email = models.CharField(max_length=100)
     first_name = models.CharField(max_length=50)
@@ -167,10 +169,20 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     product_title = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
     admin_revenue = models.DecimalField(max_digits=10, decimal_places=2)
     manager_revenue = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Payment(models.Model):
+    transaction_id = models.CharField(max_length=255, null=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
