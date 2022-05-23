@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # fields = '__all__' #use all fields
-        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'is_manager']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'is_manager', 'is_customer']
         extra_kwargs = {
             'password': {'write_only': True}  # don't need to retrieve the password after creation
         }

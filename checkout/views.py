@@ -39,9 +39,12 @@ class OrderAPIView(APIView):
         try:
 
             order = Order()
+            order.link = link
             order.code = link.code
             order.user_id = link.user.id
-            order.manager_email = link.user.email
+            user = User.objects.filter(pk=link.user.id).first()
+            if user.is_manager:
+                order.manager_email = user.email
             order.first_name = data['first_name']
             order.last_name = data['last_name']
             order.email = data['email']
@@ -57,14 +60,19 @@ class OrderAPIView(APIView):
             for item in data['products']:
                 product = Product.objects.filter(pk=item['product_id']).first()
                 quantity = decimal.Decimal(item['quantity'])
-
+                # order item
                 order_item = OrderItem()
                 order_item.order = order
+                order_item.product = product  #
                 order_item.product_title = product.title
                 order_item.price = product.price
                 order_item.quantity = quantity
-                order_item.manager_revenue = decimal.Decimal(.1) * product.price * quantity
-                order_item.admin_revenue = decimal.Decimal(.9) * product.price * quantity
+                if user.is_manager:
+                    order_item.manager_revenue = decimal.Decimal(.1) * product.price * quantity
+                    order_item.admin_revenue = decimal.Decimal(.9) * product.price * quantity
+                else:
+                    order_item.admin_revenue = decimal.Decimal(1.0) * product.price * quantity
+                    order_item.manager_revenue = 0
                 order_item.save()
                 # with transaction.atomic():
                 #order_item.save()
@@ -72,7 +80,7 @@ class OrderAPIView(APIView):
                 # stripe data for checkout
                 line_items.append({
                     'name': product.title,
-                    'description': product.description,
+                    'description': ('OEM:'+product.oem_part_number + '\n' + product.description),
                     'images': [
                         product.image
                     ],

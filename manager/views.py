@@ -11,6 +11,7 @@ from core.models import Product, Link, Order, User
 
 from common.authentication import JWTAuthentication
 
+from administrator.serializers import OrderSerializer
 from .serializers import ProductSerializer, LinkSerializer
 from django.core.cache import cache
 
@@ -162,7 +163,7 @@ class RankingsAPIViewWithoutRedis(APIView):
         response = list({
             'name': a.name,
             'revenue': a.revenue
-        } for a in managers)
+        } for a in managers if a.revenue > 0)
 
         response.sort(key=lambda a: a['revenue'], reverse=True)
 
@@ -181,3 +182,15 @@ class RankingsAPIViewWithRedis(APIView):
         return Response({
             r[0].decode("utf-8"): r[1] for r in rankings
         })
+
+
+class OrderAPIView(APIView):
+    authentication_classes = [JWTAuthentication]  # try to authenticate user
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # links = Link.objects.filter(user_id=user.id) #get all links for user_id
+        orders = Order.objects.filter(user_id=user.id)  # .filter(complete=True)  # complete=True)
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)

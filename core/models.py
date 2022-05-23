@@ -43,7 +43,8 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=50)
     email = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=255)
-    is_manager = models.BooleanField(default=True)
+    is_manager = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=False)
     username = None
 
     USERNAME_FIELD = 'email'  # username equals to email

@@ -16,7 +16,7 @@ class RegisterAPIView(APIView):
         if data['password'] != data['password_confirm']:
             raise exceptions.APIException('Passwords do not match!')
 
-        data['is_manager'] = 'api/manager' in request.path  # check if exist in request path
+        data['is_customer'] = 'api/manager' in request.path  # check if exist in request path # manager
         serializer = UserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

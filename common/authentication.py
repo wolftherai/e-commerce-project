@@ -28,9 +28,9 @@ class JWTAuthentication(BaseAuthentication):
         if user is None:
             raise exceptions.AuthenticationFailed('User not found!')
 
-        return (user, None)  # for error
+        return user, None  # for error
 
-    @staticmethod #no need to declare a class
+    @staticmethod  # no need to declare a class
     def generate_jwt(id, scope):
         payload = {
             'user_id': id,
