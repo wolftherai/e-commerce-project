@@ -138,7 +138,7 @@ class StatsAPIView(APIView):
     def get(self, request):
         user = request.user
 
-        links = Link.objects.filter(user_id=user.id) #get all links for user_id
+        links = Link.objects.filter(user_id=user.id).order_by('-updated_at') #get all links for user_id
 
         return Response([(self.format(link)) for link in links])  # loop through links
 
@@ -191,6 +191,6 @@ class OrderAPIView(APIView):
     def get(self, request):
         user = request.user
         # links = Link.objects.filter(user_id=user.id) #get all links for user_id
-        orders = Order.objects.filter(user_id=user.id)  # .filter(complete=True)  # complete=True)
+        orders = Order.objects.filter(user_id=user.id).order_by('-updated_at')  # .filter(complete=True)  # complete=True)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)

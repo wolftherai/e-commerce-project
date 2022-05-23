@@ -140,9 +140,6 @@ class Product(models.Model):
             return OemPart.objects.filter(pk=self.oem_part.id).first().code
         else:
             return ""
- #   @property
- #   def category_name(self):
-   #     return Category.objects.filter(pk=self.category_new.id).first().name
 
 
 class Link(models.Model):
@@ -184,7 +181,7 @@ class Order(models.Model):
     @property
     def order_price(self):
         items = OrderItem.objects.filter(order_id=self.pk)
-        return sum(i.price for i in items)
+        return sum(i.price * i.quantity for i in items)
 
 
 class OrderItem(models.Model):

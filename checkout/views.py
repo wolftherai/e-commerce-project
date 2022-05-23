@@ -127,13 +127,13 @@ class OrderConfirmedAPIView(APIView):
         )
 
         # Manager
-
-        send_mail(
-            subject='An Order has been completed',
-            message='Order #' + str(order.id) + 'with a total of € ' + str(order.manager_revenue) + ' has been completed!' + ' From link #' + str(order.code),
-            from_email=DEFAULT_FROM_EMAIL,
-            recipient_list=[DEFAULT_FROM_EMAIL, order.manager_email]
-        )
+        if order.manager_email > '':
+            send_mail(
+                subject='An Order has been completed',
+                message='Order #' + str(order.id) + 'with a total of € ' + str(order.manager_revenue) + ' has been completed!' + ' From link #' + str(order.code),
+                from_email=DEFAULT_FROM_EMAIL,
+                recipient_list=[DEFAULT_FROM_EMAIL, order.manager_email]
+            )
 
         return Response({
             'message': 'success'

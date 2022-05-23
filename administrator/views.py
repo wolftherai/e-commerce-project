@@ -153,7 +153,7 @@ class LinkAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk=None):
-        links = Link.objects.filter(user_id=pk)
+        links = Link.objects.filter(user_id=pk).order_by('-updated_at')
         serializer = LinkSerializer(links, many=True)
         return Response(serializer.data)
 
@@ -164,7 +164,7 @@ class OemPartAPIView(
     authentication_classes = [JWTAuthentication]  # try to authenticate user
     permission_classes = [IsAuthenticated]
 
-    queryset = OemPart.objects.all().order_by('-code')  # .order_by('-code')
+    queryset = OemPart.objects.all().order_by('-updated_at')  # .order_by('-code')
     serializer_class = OemPartSerializer  # serialize objects
 
     def get(self, request, pk=None):  # if pk is not set we take all the objects
@@ -179,6 +179,6 @@ class OrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(complete=True)
+        orders = Order.objects.filter(complete=True).order_by('-updated_at')
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
