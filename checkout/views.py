@@ -80,7 +80,7 @@ class OrderAPIView(APIView):
                 # stripe data for checkout
                 line_items.append({
                     'name': product.title,
-                    'description': ('OEM:'+product.oem_part_number + '\n' + product.description),
+                    'description': ('OEM:'+product.oem_part_code + '\n' + product.description),
                     'images': [
                         product.image
                     ],

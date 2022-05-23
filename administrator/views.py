@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 
 from common.serializers import UserSerializer
 from common.authentication import JWTAuthentication
-from administrator.serializers import ProductSerializer, LinkSerializer, OrderSerializer , CategorySerializer, BrandSerializer, ManufacturerSerializer
-from core.models import User, Product, Link, Order, Category, Brand, Manufacturer #as Mnfcturer
+from administrator.serializers import ProductSerializer, LinkSerializer, OrderSerializer , CategorySerializer, BrandSerializer, ManufacturerSerializer, OemPartSerializer
+from core.models import User, Product, Link, Order, Category, Brand, Manufacturer, OemPart #as Mnfcturer
 from django.core.cache import cache
 
 
@@ -27,7 +27,7 @@ class ProductGenericAPIView(
 ):
     authentication_classes = [JWTAuthentication]  # try to authenticate user
     permission_classes = [IsAuthenticated]
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('-updated_at')
     serializer_class = ProductSerializer  # serialize products
 
     def get(self, request, pk=None):  # if pk is not set we take all the products
@@ -156,6 +156,22 @@ class LinkAPIView(APIView):
         links = Link.objects.filter(user_id=pk)
         serializer = LinkSerializer(links, many=True)
         return Response(serializer.data)
+
+
+class OemPartAPIView(
+    generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.ListModelMixin
+):
+    authentication_classes = [JWTAuthentication]  # try to authenticate user
+    permission_classes = [IsAuthenticated]
+
+    queryset = OemPart.objects.all().order_by('-code')  # .order_by('-code')
+    serializer_class = OemPartSerializer  # serialize objects
+
+    def get(self, request, pk=None):  # if pk is not set we take all the objects
+        if pk:
+            return self.retrieve(request, pk)
+
+        return self.list(request)
 
 
 class OrderAPIView(APIView):

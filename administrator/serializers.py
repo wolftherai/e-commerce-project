@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from core.models import Product, Link, OrderItem, Order, Manufacturer, Category, Brand
+from core.models import Product, Link, OrderItem, Order, Manufacturer, Category, Brand, OemPart
 
 
 class ProductSerializer(serializers.ModelSerializer):
     manufacturer_name = serializers.SerializerMethodField('get_manufacturer_name')
     brand_name = serializers.SerializerMethodField('get_brand_name')
     category_name = serializers.SerializerMethodField('get_category_name')
+    oem_part_code = serializers.SerializerMethodField('get_oem_part_code')
 
     def get_manufacturer_name(self, obj):
         return obj.manufacturer_name
@@ -15,6 +16,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_category_name(self, obj):
         return obj.category_name
+
+    def get_oem_part_code(self, obj):
+        return obj.oem_part_code
 
     class Meta:
         model = Product
@@ -56,6 +60,12 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = '__all__' #use all fields
 
 
+class OemPartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OemPart
+        fields = '__all__' #use all fields
+
+
 class OrderSerializer(serializers.ModelSerializer):
     order_items = OrderItemSerializer(many=True)
     total = serializers.SerializerMethodField('get_total')
@@ -67,8 +77,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_customer_name(self, obj):
         return obj.customer_name
-
-
 
     class Meta:
         model = Order

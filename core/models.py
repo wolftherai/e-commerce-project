@@ -61,6 +61,12 @@ class User(AbstractUser):
         orders = Order.objects.filter(user_id=self.pk, complete=True)
         return sum(o.manager_revenue for o in orders)
 
+class CarModel(models.Model):
+    car_make = models.CharField(max_length=50)
+    car_model_name = models.CharField(max_length=100)
+    car_model_year = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -80,11 +86,18 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+class OemPart(models.Model):
+    code = models.CharField(max_length=12, unique=True)
+    car_model = models.ManyToManyField(CarModel)  # oem filter for models
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    oem_part_number = models.CharField(max_length=12, db_index=True)
-
+    oem_part_number = models.CharField(max_length=12, null=True)
+    oem_part = models.ForeignKey(OemPart, on_delete=models.SET_NULL, null=True)
     # brand = models.CharField(max_length=50)  # reikes itraukti kategorijas
     # manufacturer = models.CharField(max_length=50)  # reikes itraukti kategorijas
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.SET_NULL, null=True)  # SET_NULL blank=True,
@@ -121,6 +134,12 @@ class Product(models.Model):
         else:
             return ""
 
+    @property
+    def oem_part_code(self):
+        if self.oem_part:
+            return OemPart.objects.filter(pk=self.oem_part.id).first().code
+        else:
+            return ""
  #   @property
  #   def category_name(self):
    #     return Category.objects.filter(pk=self.category_new.id).first().name
@@ -187,3 +206,5 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+

@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from .views import ManagerAPIView, ProductGenericAPIView, LinkAPIView, OrderAPIView,\
-    CategoryGenericAPIView, BrandGenericAPIView, ManufacturerGenericAPIView
+    CategoryGenericAPIView, BrandGenericAPIView, ManufacturerGenericAPIView, OemPartAPIView
 
 urlpatterns = [
     path('', include('common.urls')),
@@ -18,6 +18,8 @@ urlpatterns = [
 
     path('manufacturers', ManufacturerGenericAPIView.as_view()),
     path('manufacturers/<str:pk>', ManufacturerGenericAPIView.as_view()),  # products with primary key
+
+    path('oem_parts', OemPartAPIView.as_view()),
 
     path('users/<str:pk>/links', LinkAPIView.as_view()),  # user with primary key
     path('orders', OrderAPIView.as_view()),
